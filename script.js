@@ -20,17 +20,19 @@ let comments = [
         comment:
           "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
         picture: "https://randomuser.me/api/portraits/men/36.jpg",
-        reply: [{
-          id: "3",
-          name: "Muhammed Yaseen",
-          comment:
-            "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
-          picture: "https://randomuser.me/api/portraits/men/36.jpg",
-          reply: [],
-        },],
+        reply: [
+          {
+            id: "4",
+            name: "Muhammed Yaseen",
+            comment:
+              "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
+            picture: "https://randomuser.me/api/portraits/men/36.jpg",
+            reply: [],
+          },
+        ],
       },
       {
-        id: "3",
+        id: "5",
         name: "Rishal",
         comment:
           "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
@@ -40,7 +42,7 @@ let comments = [
     ],
   },
   {
-    id: "5",
+    id: "6",
     name: "David bro",
     comment:
       "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
@@ -48,9 +50,9 @@ let comments = [
     reply: [],
   },
 ];
-const populateComment = (comment,parentElement, type = "comment") => {
+const populateComment = (comment, parentElement, type = "comment") => {
   const commentWrapper = document.createElement("div");
-
+  commentWrapper.id=comment.id;
   if (type == "comment") {
     commentWrapper.classList.add("comment-wrapper");
   } else {
@@ -64,7 +66,7 @@ const populateComment = (comment,parentElement, type = "comment") => {
     commentElement.classList.add("reply", "comment");
   }
 
-  commentElement.innerHTML = `<div class="comment">
+  commentElement.innerHTML = `
      <div class="user-banner">
          <div class="user">
              <div class="avatar" style="background-color:#fff5e9;border-color:#ffe0bd; color:#F98600">
@@ -83,22 +85,42 @@ const populateComment = (comment,parentElement, type = "comment") => {
      <div class="footer">
          <button class="btn"><i class="ri-emotion-line"></i></button>
          <div class="divider"></div>
-         ${type != "reply" ? '<a href="#">Reply</a><div class="divider"></div>' : ""}
+         ${
+           type != "reply"
+             ? '<a href="#">Reply</a><div class="divider"></div>'
+             : ""
+         }
          
          
          <span class="is-mute">2 min</span>
      </div>
- </div>`;
+`;
   commentWrapper.appendChild(commentElement);
   if (comment.reply.length > 0) {
     populateArrayComments(comment.reply, commentWrapper, "reply");
   }
   parentElement.appendChild(commentWrapper);
+  return commentWrapper;
 };
 
 const populateArrayComments = (comments, parentElement, type = "comment") => {
-  comments.forEach((comment)=>{populateComment(comment,parentElement,type)});
+  comments.forEach((comment) => {
+    populateComment(comment, parentElement, type);
+  });
 };
 
 let allcommentDiv = document.querySelector(".all-comments");
 populateArrayComments(comments, allcommentDiv);
+
+
+
+// let newcomment={
+//   id: "1",
+//   name: "Floyd not Miles",
+//   comment:
+//     "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
+//   picture: "https://randomuser.me/api/portraits/men/86.jpg",
+//   reply: [],
+// };
+// let newDiv=populateComment(newcomment,allcommentDiv,type='comment');
+// allcommentDiv.removeChild(newDiv)

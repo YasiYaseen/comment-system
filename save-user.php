@@ -57,6 +57,7 @@ echo "added to db";
 }
     }
 }
+$_SESSION['user_id']=$lid;
 $_SESSION['email']=$email;
 $_SESSION['name']=$name;
 $_SESSION['picture']=$picture;

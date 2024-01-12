@@ -12,33 +12,33 @@ session_start();
 
     <link rel="stylesheet" href="style.css?id=1">
     <style>
-    .login-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-    }
+        .login-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
 
-    .lgn-round {
-        border: 1px solid #00bcd4;
-        border-radius: 16%;
-        padding: 5px 10px;
-    }
+        .lgn-round {
+            border: 1px solid #00bcd4;
+            border-radius: 16%;
+            padding: 5px 10px;
+        }
 
-    .lgn-round h4 {
-        margin: 0;
-    }
+        .lgn-round h4 {
+            margin: 0;
+        }
 
-    .profile {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
+        .profile {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-    .profile img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-    }
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
     </style>
 </head>
 
@@ -46,16 +46,16 @@ session_start();
     <div class="login-btn">
         <?php if (!isset($_SESSION['name'])) {
         ?>
-        <div class="lgn-round" id="login-btn">
-            <h4>Login</h4>
-        </div>
+            <div class="lgn-round" id="login-btn">
+                <h4>Login</h4>
+            </div>
         <?php
         } else { ?>
-        <div class="profile">
-            <img src="<?php echo $_SESSION['picture']; ?>" alt="">
-            <h4><?php echo $_SESSION['name'] ?></h4>
-            <div class="logout-btn" id="logout-btn">Logout</div>
-        </div>
+            <div class="profile">
+                <img src="<?php echo $_SESSION['picture']; ?>" alt="">
+                <h4><?php echo $_SESSION['name'] ?></h4>
+                <div class="logout-btn" id="logout-btn">Logout</div>
+            </div>
         <?php
         } ?>
 
@@ -98,66 +98,102 @@ session_start();
             </div>
         </div>
         <div class="all-comments">
-           
+
         </div>
         <div class="load">
             <span><i class="ri-refresh-line"></i>Loading</span>
         </div>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="script.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-    document.addEventListener('DOMContentLoaded',()=>{
+            let isLoggedIn = <?php echo (isset($_SESSION['email'])) ? 'true' : 'false';  ?>
 
-        let isLoggedIn = <?php echo (isset($_SESSION['email'])) ? 'true' : 'false';  ?>
+            const sendbutton = document.getElementById('sendbutton');
+            let inputbox = document.getElementById('messagebox');
 
-const sendbutton = document.getElementById('sendbutton');
-let inputbox = document.getElementById('messagebox');
+            sendbutton.addEventListener('click', () => {
+                if (isLoggedIn) {
+                    console.log("loggedIn");
+                    if (inputbox.innerText == "") {
+                        alert("empty");
+                    } else {
+                        let name='<?php echo isset($_SESSION['name'])? $_SESSION['name']: ''; ?>';
+                        let picture = '<?php echo isset($_SESSION['picture'])?$_SESSION['picture']:'' ?>';
+                        let comment = {
+                            id: '1111',
+                            name: name,
+                            comment: inputbox.innerText,
+                            picture: picture,
+                            reply: []
 
-sendbutton.addEventListener('click', () => {
-    if (isLoggedIn) {
+                        };
+                        let allcommentDiv = document.querySelector(".all-comments");
 
-        if (inputbox.innerText == "") {
-            alert("empty");
-        } else {
+                        let commentDiv = populateComment(comment, allcommentDiv, 'comment');
+                        console.log(commentDiv);
+                        $.ajax({
+                            type: "POST",
+                            url: "storeComments.php",
+                            data: {
+                                'comment': inputbox.innerText,
 
-        }
-    } else {
-        window.location.href = 'login.php';
-    }
-})
-const logoutBtn =document.getElementById('logout-btn');
-if(logoutBtn){
-    logoutBtn.addEventListener('click',async()=>{
-    fetch('logout.php',
-    {
-        method: 'GET',
-        credentials:'include'
-    }
-    ).then((response)=>{
-        if(!response.ok){
-            throw("Logout was Unsuccesful");
-        }
-        location.reload();
-    }).catch(error => {
-        console.log(error);
-    })
-})
-}
+                            },
+                            dataType: "json",
+                            success: function(response) {
+                                console.log("succeeess");
+                                if (response[0] === '1') {
+                                    console.log("success");
+                                    commentDiv.id = response[2];
+                                } else {
+                                    console.log("fail");
+                                    console.log(commentDiv);
+                                    allcommentDiv.removeChild(commentDiv);
+                                }
+                                inputbox.innerText = ""
+                            },
+                            error: function(xhr, status, erroro) {
+                                console.log('ererooo');
+                                allcommentDiv.removeChild(commentDiv);
 
-const loginBtn = document.getElementById('login-btn');
-if(loginBtn){
- loginBtn.addEventListener('click',()=>{
+                            }
+                        });
+                    }
+                } else {
+                    window.location.href = 'login.php';
+                }
+            })
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    fetch('logout.php', {
+                        method: 'GET',
+                        credentials: 'include'
+                    }).then((response) => {
+                        if (!response.ok) {
+                            throw ("Logout was Unsuccesful");
+                        }
+                        location.reload();
+                    }).catch(error => {
+                        console.log(error);
+                    })
+                })
+            }
 
-    window.location.href = 'login.php';
+            const loginBtn = document.getElementById('login-btn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', () => {
 
-})   
-}
+                    window.location.href = 'login.php';
+
+                })
+            }
 
 
 
-    })
+        })
     </script>
 </body>
 
