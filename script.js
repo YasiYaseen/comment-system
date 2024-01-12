@@ -110,7 +110,7 @@ const populateArrayComments = (comments, parentElement, type = "comment") => {
 };
 
 let allcommentDiv = document.querySelector(".all-comments");
-populateArrayComments(comments, allcommentDiv);
+// populateArrayComments(comments, allcommentDiv);
 
 
 
@@ -124,3 +124,16 @@ populateArrayComments(comments, allcommentDiv);
 // };
 // let newDiv=populateComment(newcomment,allcommentDiv,type='comment');
 // allcommentDiv.removeChild(newDiv)
+
+
+$.ajax({
+  type: "POST",
+  url: "getComments.php",
+  data: {
+    test:'hi'
+  },
+  dataType: "json",
+  success: function (response) {
+populateArrayComments(response,allcommentDiv,'comment')
+  }
+});
