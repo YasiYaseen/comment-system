@@ -194,6 +194,17 @@ const createReplyBox =(commentDiv)=>{
   commentDiv.appendChild(replyBox);
 
   sendButtonDiv.addEventListener("click", function () {
+    e.stopPropagation();
     console.log("hi");
   });
+  replyBox.addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
+  document.body.addEventListener('mousedown',function (e){
+    if (replyBox && !replyBox.contains(e.target)) {
+      replyBox.remove();
+    }
+  })
+
 }
