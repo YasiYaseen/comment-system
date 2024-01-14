@@ -52,12 +52,9 @@ let comments = [
 ];
 const populateComment = (comment, parentElement, type = "comment") => {
   const commentWrapper = document.createElement("div");
-  commentWrapper.id=comment.id;
-  if (type == "comment") {
-    commentWrapper.classList.add("comment-wrapper");
-  } else {
-    commentWrapper.classList.add("reply-wrapper");
-  }
+  commentWrapper.id = comment.id;
+  commentWrapper.classList.add("comment-wrapper");
+
   const commentElement = document.createElement("div");
 
   if (type == "comment") {
@@ -87,7 +84,7 @@ const populateComment = (comment, parentElement, type = "comment") => {
          <div class="divider"></div>
          ${
            type != "reply"
-             ? '<a href="#">Reply</a><div class="divider"></div>'
+             ? '<a href="#" class="reply-link">Reply</a><div class="divider"></div>'
              : ""
          }
          
@@ -112,8 +109,6 @@ const populateArrayComments = (comments, parentElement, type = "comment") => {
 let allcommentDiv = document.querySelector(".all-comments");
 // populateArrayComments(comments, allcommentDiv);
 
-
-
 // let newcomment={
 //   id: "1",
 //   name: "Floyd not Miles",
@@ -125,15 +120,80 @@ let allcommentDiv = document.querySelector(".all-comments");
 // let newDiv=populateComment(newcomment,allcommentDiv,type='comment');
 // allcommentDiv.removeChild(newDiv)
 
-
 $.ajax({
   type: "POST",
   url: "getComments.php",
   data: {
-    test:'hi'
+    test: "hi",
   },
   dataType: "json",
   success: function (response) {
-populateArrayComments(response,allcommentDiv,'comment')
-  }
+    populateArrayComments(response, allcommentDiv, "comment");
+  },
 });
+
+function getClosest(element, className) {
+  while (
+    (element = element.parentElement) &&
+    !element.classList.contains(className)
+  );
+  return element;
+}
+
+window.onload = function () {
+  var replyButtons = document.querySelectorAll(".reply-link");
+
+  replyButtons.forEach(function (replyButton) {
+    replyButton.addEventListener("click", function (e) {
+      e.preventDefault();
+      let commentDiv = getClosest(e.target, "comment-wrapper");
+      let commentId = commentDiv.id;
+      createReplyBox(commentDiv);
+     
+
+
+    });
+  });
+};
+
+
+const createReplyBox =(commentDiv)=>{
+  // top parent (writing) 
+  let replyBox = document.createElement("div");
+  replyBox.classList.add("writing");
+
+// text input box 
+  const textareaDiv = document.createElement("div");
+  textareaDiv.setAttribute("contenteditable", "true");
+  textareaDiv.classList.add("textarea");
+  textareaDiv.setAttribute("autofocus", "");
+  textareaDiv.setAttribute("spellcheck", "false");
+  replyBox.appendChild(textareaDiv);
+
+  // text format  
+  const textFormat = document.createElement('div');
+  textFormat.classList.add('text-format');
+  textFormat.innerHTML=`<button class="btn"><i class="ri-bold"></i></button>
+  <button class="btn"><i class="ri-italic"></i></button>
+  <button class="btn"><i class="ri-underline"></i></button>
+  <button class="btn"><i class="ri-list-unordered"></i></button>`;
+
+  // send button 
+  const sendButtonDiv = document.createElement("div");
+  sendButtonDiv.classList.add("group-button");
+  sendButtonDiv.innerHTML = `<button class="btn"><i class="ri-at-line"></i></button>
+  <button class="btn primary">Send</button>`;
+
+  // const footer 
+  const footer=document.createElement('div');
+  footer.classList.add('footer')
+  footer.appendChild(textFormat);
+  footer.appendChild(sendButtonDiv);
+  replyBox.appendChild(footer)
+
+  commentDiv.appendChild(replyBox);
+
+  sendButtonDiv.addEventListener("click", function () {
+    console.log("hi");
+  });
+}
