@@ -50,6 +50,25 @@ let comments = [
     reply: [],
   },
 ];
+
+class User {
+  constructor( name, picture) {
+    // this.userid = userid;
+    this.name = name;
+    this.picture = picture;
+  }
+  commentObject(comment){
+    return {
+      id: '1111',
+      name: this.name,
+      comment: comment,
+      picture: this.picture,
+      reply: []
+      
+  };
+  }
+}
+
 const populateComment = (comment, parentElement, type = "comment") => {
   const commentWrapper = document.createElement("div");
   commentWrapper.id = comment.id;
@@ -149,20 +168,16 @@ window.onload = function () {
       let commentDiv = getClosest(e.target, "comment-wrapper");
       let commentId = commentDiv.id;
       createReplyBox(commentDiv);
-     
-
-
     });
   });
 };
 
-
-const createReplyBox =(commentDiv)=>{
-  // top parent (writing) 
+const createReplyBox = (commentDiv) => {
+  // top parent (writing)
   let replyBox = document.createElement("div");
   replyBox.classList.add("writing");
 
-// text input box 
+  // text input box
   const textareaDiv = document.createElement("div");
   textareaDiv.setAttribute("contenteditable", "true");
   textareaDiv.classList.add("textarea");
@@ -170,41 +185,76 @@ const createReplyBox =(commentDiv)=>{
   textareaDiv.setAttribute("spellcheck", "false");
   replyBox.appendChild(textareaDiv);
 
-  // text format  
-  const textFormat = document.createElement('div');
-  textFormat.classList.add('text-format');
-  textFormat.innerHTML=`<button class="btn"><i class="ri-bold"></i></button>
+  // text format
+  const textFormat = document.createElement("div");
+  textFormat.classList.add("text-format");
+  textFormat.innerHTML = `<button class="btn"><i class="ri-bold"></i></button>
   <button class="btn"><i class="ri-italic"></i></button>
   <button class="btn"><i class="ri-underline"></i></button>
   <button class="btn"><i class="ri-list-unordered"></i></button>`;
 
-  // send button 
+  // send button
   const sendButtonDiv = document.createElement("div");
   sendButtonDiv.classList.add("group-button");
   sendButtonDiv.innerHTML = `<button class="btn"><i class="ri-at-line"></i></button>
   <button class="btn primary">Send</button>`;
 
-  // const footer 
-  const footer=document.createElement('div');
-  footer.classList.add('footer')
+  // const footer
+  const footer = document.createElement("div");
+  footer.classList.add("footer");
   footer.appendChild(textFormat);
   footer.appendChild(sendButtonDiv);
-  replyBox.appendChild(footer)
+  replyBox.appendChild(footer);
 
   commentDiv.appendChild(replyBox);
 
-  sendButtonDiv.addEventListener("click", function () {
-    e.stopPropagation();
-    console.log("hi");
-  });
-  replyBox.addEventListener('click', function (e) {
+ replyBox.addEventListener("click", function (e) {
     e.stopPropagation();
   });
+  // reply send 
+    sendButtonDiv.addEventListener("click", function (e) {
+    e.stopPropagation();
+if(textareaDiv.innerText!=''){
+  let comment = user.commentObject(textareaDiv.innerText);
+  let replydiv = populateComment(comment,commentDiv,'reply');
+ addComment(textareaDiv,replydiv,commentDiv);
+ replyBox.remove()
 
-  document.body.addEventListener('mousedown',function (e){
+}
+
+  });
+ 
+
+  document.body.addEventListener("mousedown", function (e) {
     if (replyBox && !replyBox.contains(e.target)) {
       replyBox.remove();
     }
-  })
+  });
+};
 
-}
+const addComment = (inputbox, commentDiv, parentDiv) => {
+  $.ajax({
+    type: "POST",
+    url: "storeComments.php",
+    data: {
+      comment: inputbox.innerText,
+    },
+    dataType: "json",
+    success: function (response) {
+      console.log("succeeess");
+      if (response[0] === "1") {
+        console.log("success");
+        commentDiv.id = response[2];
+      } else {
+        console.log("fail");
+        console.log(commentDiv);
+        parentDiv.removeChild(commentDiv);
+      }
+      inputbox.innerText = "";
+    },
+    error: function (xhr, status, erroro) {
+      console.log("ererooo");
+      parentDiv.removeChild(commentDiv);
+    },
+  });
+};

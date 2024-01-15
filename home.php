@@ -45,18 +45,20 @@ session_start();
 <body>
     <div class="login-btn">
         <?php if (!isset($_SESSION['name'])) {
-        ?>
+            ?>
             <div class="lgn-round" id="login-btn">
                 <h4>Login</h4>
             </div>
-        <?php
+            <?php
         } else { ?>
             <div class="profile">
                 <img src="<?php echo $_SESSION['picture']; ?>" alt="">
-                <h4><?php echo $_SESSION['name'] ?></h4>
+                <h4>
+                    <?php echo $_SESSION['name'] ?>
+                </h4>
                 <div class="logout-btn" id="logout-btn">Logout</div>
             </div>
-        <?php
+            <?php
         } ?>
 
 
@@ -104,12 +106,19 @@ session_start();
             <span><i class="ri-refresh-line"></i>Loading</span>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="script.js"></script>
     <script>
+         let isLoggedIn = <?php echo (isset($_SESSION['email'])) ? 'true' : 'false'; ?>;
+            let name = '<?php echo isset($_SESSION['name']) ? $_SESSION['name'] : ''; ?>';
+            let picture = '<?php echo isset($_SESSION['picture']) ? $_SESSION['picture'] : '' ?>';
+           const user = new User(name,picture);
         document.addEventListener('DOMContentLoaded', () => {
 
-            let isLoggedIn = <?php echo (isset($_SESSION['email'])) ? 'true' : 'false';  ?>
+           
+
+
 
             const sendbutton = document.getElementById('sendbutton');
             let inputbox = document.getElementById('messagebox');
@@ -120,46 +129,22 @@ session_start();
                     if (inputbox.innerText == "") {
                         alert("empty");
                     } else {
-                        let name='<?php echo isset($_SESSION['name'])? $_SESSION['name']: ''; ?>';
-                        let picture = '<?php echo isset($_SESSION['picture'])?$_SESSION['picture']:'' ?>';
-                        let comment = {
-                            id: '1111',
-                            name: name,
-                            comment: inputbox.innerText,
-                            picture: picture,
-                            reply: []
 
-                        };
+                        // let comment = {
+                        //     id: '1111',
+                        //     name: name,
+                        //     comment: inputbox.innerText,
+                        //     picture: picture,
+                        //     reply: []
+
+                        // };
+                        let comment =user.commentObject(inputbox.innerText);
                         let allcommentDiv = document.querySelector(".all-comments");
 
                         let commentDiv = populateComment(comment, allcommentDiv, 'comment');
-                        console.log(commentDiv);
-                        $.ajax({
-                            type: "POST",
-                            url: "storeComments.php",
-                            data: {
-                                'comment': inputbox.innerText,
+                        // console.log(commentDiv);
+                        addComment(inputbox, commentDiv, allcommentDiv);
 
-                            },
-                            dataType: "json",
-                            success: function(response) {
-                                console.log("succeeess");
-                                if (response[0] === '1') {
-                                    console.log("success");
-                                    commentDiv.id = response[2];
-                                } else {
-                                    console.log("fail");
-                                    console.log(commentDiv);
-                                    allcommentDiv.removeChild(commentDiv);
-                                }
-                                inputbox.innerText = ""
-                            },
-                            error: function(xhr, status, erroro) {
-                                console.log('ererooo');
-                                allcommentDiv.removeChild(commentDiv);
-
-                            }
-                        });
                     }
                 } else {
                     window.location.href = 'login.php';
