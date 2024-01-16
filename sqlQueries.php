@@ -3,8 +3,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 function sql_Query($query){
-    error_reporting(E_ALL);
-ini_set('display_errors', 1);
 require __DIR__.'/connect.php';
     if(!$conn || $conn->connect_error) {
         echo 'no conn';
@@ -21,7 +19,7 @@ require __DIR__.'/connect.php';
 }
 
 function extractRecord($col,$idcol,$idval,$table,$additional=""){
-    include_once 'connect.php';
+    require __DIR__.'/connect.php';
     $query='SELECT '. $col .' FROM ' . $table .' WHERE '. $idcol .' = "'. $idval .'" '. $additional;
     $result = $conn->query($query);
     if($result){
@@ -38,7 +36,7 @@ function extractRecord($col,$idcol,$idval,$table,$additional=""){
     }
 }
 function extractRecordAll($col,$table,$additional=""){
-    include_once 'connect.php';
+    require __DIR__.'/connect.php';
     $query='SELECT '. $col .' FROM ' . $table . ' '. $additional;
     $result = $conn->query($query);
     if($result){
@@ -48,7 +46,7 @@ function extractRecordAll($col,$table,$additional=""){
         }        $conn->close();
         return $rows;
     }else{
-            error_log("Error in query: " . $query . " - " . $conn->error);
+            // error_log("Error in query: " . $query . " - " . $conn->error);
         return 'No Data';
     }
 }
