@@ -129,15 +129,6 @@ session_start();
                     if (inputbox.innerText == "") {
                         alert("empty");
                     } else {
-
-                        // let comment = {
-                        //     id: '1111',
-                        //     name: name,
-                        //     comment: inputbox.innerText,
-                        //     picture: picture,
-                        //     reply: []
-
-                        // };
                         let comment =user.commentObject(inputbox.innerText);
                         let allcommentDiv = document.querySelector(".all-comments");
 
@@ -150,6 +141,7 @@ session_start();
                     window.location.href = 'login.php';
                 }
             })
+            // logout 
             const logoutBtn = document.getElementById('logout-btn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async () => {
@@ -166,7 +158,7 @@ session_start();
                     })
                 })
             }
-
+            // login 
             const loginBtn = document.getElementById('login-btn');
             if (loginBtn) {
                 loginBtn.addEventListener('click', () => {

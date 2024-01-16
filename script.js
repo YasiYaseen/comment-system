@@ -52,20 +52,19 @@ let comments = [
 ];
 
 class User {
-  constructor( name, picture) {
+  constructor(name, picture) {
     // this.userid = userid;
     this.name = name;
     this.picture = picture;
   }
-  commentObject(comment){
+  commentObject(comment) {
     return {
-      id: '1111',
+      id: "1111",
       name: this.name,
       comment: comment,
       picture: this.picture,
-      reply: []
-      
-  };
+      reply: [],
+    };
   }
 }
 
@@ -115,7 +114,12 @@ const populateComment = (comment, parentElement, type = "comment") => {
   if (comment.reply.length > 0) {
     populateArrayComments(comment.reply, commentWrapper, "reply");
   }
-  parentElement.appendChild(commentWrapper);
+  if(type=='comment'){
+parentElement.insertBefore(commentWrapper,parentElement.firstChild)
+  }else{
+      parentElement.appendChild(commentWrapper);
+
+  }
   return commentWrapper;
 };
 
@@ -206,24 +210,21 @@ const createReplyBox = (commentDiv) => {
   footer.appendChild(sendButtonDiv);
   replyBox.appendChild(footer);
 
-  commentDiv.appendChild(replyBox);
+  commentDiv.insertBefore(replyBox, commentDiv.firstChild.nextSibling);
 
- replyBox.addEventListener("click", function (e) {
+  replyBox.addEventListener("click", function (e) {
     e.stopPropagation();
   });
-  // reply send 
-    sendButtonDiv.addEventListener("click", function (e) {
+  // reply send
+  sendButtonDiv.addEventListener("click", function (e) {
     e.stopPropagation();
-if(textareaDiv.innerText!=''){
-  let comment = user.commentObject(textareaDiv.innerText);
-  let replydiv = populateComment(comment,commentDiv,'reply');
- addComment(textareaDiv,replydiv,commentDiv);
- replyBox.remove()
-
-}
-
+    if (textareaDiv.innerText != "") {
+      let comment = user.commentObject(textareaDiv.innerText);
+      let replydiv = populateComment(comment, commentDiv, "reply");
+      addComment(textareaDiv, replydiv, commentDiv, commentDiv.id);
+      replyBox.remove();
+    }
   });
- 
 
   document.body.addEventListener("mousedown", function (e) {
     if (replyBox && !replyBox.contains(e.target)) {
@@ -232,12 +233,13 @@ if(textareaDiv.innerText!=''){
   });
 };
 
-const addComment = (inputbox, commentDiv, parentDiv) => {
+const addComment = (inputbox, commentDiv, parentDiv, parentId = null) => {
   $.ajax({
     type: "POST",
     url: "storeComments.php",
     data: {
       comment: inputbox.innerText,
+      parentId: parentId,
     },
     dataType: "json",
     success: function (response) {
