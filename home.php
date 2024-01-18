@@ -145,6 +145,7 @@ session_start();
 
                     } else {
                         storeCommentToLocal(inputbox.innerText, null);
+                        
                         window.location.href = 'login.php';
                     }
 

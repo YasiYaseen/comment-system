@@ -25,7 +25,7 @@ $.ajax({
   type: "POST",
   url: "getComments.php",
   data: {
-    test: "hi",
+    type: "allComments",
   },
   dataType: "json",
   success: function (response) {
@@ -114,6 +114,8 @@ const createReplyBox = (commentDiv) => {
         
       }else{
         storeCommentToLocal(textareaDiv.innerText,commentDiv.id);
+        console.log('stored to local');
+        getFromLocalStorage()
         window.location.href = 'login.php';
 
       }
@@ -147,14 +149,10 @@ const addComment = (comment,parentId = null,callback) => {
           status:"success",
           commentId:response[2],
         })
-      
-        
       } else {
         callback({
           status:'fail',
-
         })
-       
       }
     },
     error: function (xhr, status, erroro) {
@@ -240,3 +238,35 @@ let commentObj ={
 let commentString = JSON.stringify(commentObj);
 localStorage.setItem('pendingComment',commentString);
 }
+
+const getFromLocalStorage=()=>{
+  let commentString =localStorage.getItem('pendingComment');
+  if(commentString){
+    comment = JSON.parse(commentString);
+    let parentDiv;
+    let type;
+    if(comment.parentId ==null){
+      parentDiv = document.querySelector('.all-comments');
+      type='comment';
+    }else{
+      parentDiv=document.getElementById(comment.parentId);
+      type='reply';
+    }
+    
+  commentObj =user.commentObject(comment.comment);
+   let commentDiv = populateComment(commentObj,parentDiv,type);
+
+    addComment(comment.comment,comment.parentId,(response)=>{
+      if(response.status=='success'){
+        commentDiv.id=response.commentId;
+      }else{
+        commentDiv.remove();
+      }
+    });
+    localStorage.removeItem('pendingComment');
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  getFromLocalStorage()
+})
