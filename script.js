@@ -1,55 +1,3 @@
-let comments = [
-  {
-    id: "1",
-    name: "Floyd Miles",
-    comment:
-      "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
-    picture: "https://randomuser.me/api/portraits/men/86.jpg",
-    reply: [],
-  },
-  {
-    id: "2",
-    name: "Albert Flores",
-    comment:
-      "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
-    picture: "https://randomuser.me/api/portraits/men/46.jpg",
-    reply: [
-      {
-        id: "3",
-        name: "Muhammed Yaseen",
-        comment:
-          "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
-        picture: "https://randomuser.me/api/portraits/men/36.jpg",
-        reply: [
-          {
-            id: "4",
-            name: "Muhammed Yaseen",
-            comment:
-              "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
-            picture: "https://randomuser.me/api/portraits/men/36.jpg",
-            reply: [],
-          },
-        ],
-      },
-      {
-        id: "5",
-        name: "Rishal",
-        comment:
-          "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
-        picture: "https://randomuser.me/api/portraits/men/46.jpg",
-        reply: [],
-      },
-    ],
-  },
-  {
-    id: "6",
-    name: "David bro",
-    comment:
-      "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
-    picture: "https://randomuser.me/api/portraits/men/26.jpg",
-    reply: [],
-  },
-];
 
 class User {
   constructor(name, picture) {
@@ -68,80 +16,10 @@ class User {
   }
 }
 
-const populateComment = (comment, parentElement, type = "comment") => {
-  const commentWrapper = document.createElement("div");
-  commentWrapper.id = comment.id;
-  commentWrapper.classList.add("comment-wrapper");
 
-  const commentElement = document.createElement("div");
-
-  if (type == "comment") {
-    commentElement.classList.add("comment");
-  } else {
-    commentElement.classList.add("reply", "comment");
-  }
-
-  commentElement.innerHTML = `
-     <div class="user-banner">
-         <div class="user">
-             <div class="avatar" style="background-color:#fff5e9;border-color:#ffe0bd; color:#F98600">
-             <img src="${comment.picture}"
-             alt="">
-                 <span class="stat green"></span>
-             </div>
-             <h5>${comment.name}</h5>
-         </div>
-         <button class="btn dropdown"><i class="ri-more-line"></i></button>
-     </div>
-     <div class="content">
-         <p>${comment.comment}
-         </p>
-     </div>
-     <div class="footer">
-         <button class="btn"><i class="ri-emotion-line"></i></button>
-         <div class="divider"></div>
-         ${
-           type != "reply"
-             ? '<a href="#" class="reply-link">Reply</a><div class="divider"></div>'
-             : ""
-         }
-         
-         
-         <span class="is-mute">2 min</span>
-     </div>
-`;
-  commentWrapper.appendChild(commentElement);
-  if (comment.reply.length > 0) {
-    populateArrayComments(comment.reply, commentWrapper, "reply");
-  }
-  if(type=='comment'){
-parentElement.insertBefore(commentWrapper,parentElement.firstChild)
-  }else{
-      parentElement.appendChild(commentWrapper);
-
-  }
-  return commentWrapper;
-};
-
-const populateArrayComments = (comments, parentElement, type = "comment") => {
-  comments.forEach((comment) => {
-    populateComment(comment, parentElement, type);
-  });
-};
 
 let allcommentDiv = document.querySelector(".all-comments");
-// populateArrayComments(comments, allcommentDiv);
 
-// let newcomment={
-//   id: "1",
-//   name: "Floyd not Miles",
-//   comment:
-//     "Actually, now that I try out the links on my message, above, none of them take me to the secure site. Only my shortcut on my desktop, which I created years ago.",
-//   picture: "https://randomuser.me/api/portraits/men/86.jpg",
-//   reply: [],
-// };
-// let newDiv=populateComment(newcomment,allcommentDiv,type='comment');
-// allcommentDiv.removeChild(newDiv)
 
 $.ajax({
   type: "POST",
@@ -221,8 +99,25 @@ const createReplyBox = (commentDiv) => {
     if (textareaDiv.innerText != "") {
       let comment = user.commentObject(textareaDiv.innerText);
       let replydiv = populateComment(comment, commentDiv, "reply");
-      addComment(textareaDiv, replydiv, commentDiv, commentDiv.id);
-      replyBox.remove();
+      if(user.name!=''){
+        addComment(textareaDiv.innerText,commentDiv.id,function (response){
+          if(response.status=='success'){
+            console.log('succees');
+            replydiv.id=response.commentId;
+            replyBox.remove();
+            textareaDiv.innerText='';
+          }else{
+            console.log('no succeeess');
+            commentDiv.removeChild(reply);
+          }
+        });
+        
+      }else{
+        storeCommentToLocal(textareaDiv.innerText,commentDiv.id);
+        window.location.href = 'login.php';
+
+      }
+      
     }
   });
 
@@ -233,30 +128,115 @@ const createReplyBox = (commentDiv) => {
   });
 };
 
-const addComment = (inputbox, commentDiv, parentDiv, parentId = null) => {
+
+// add comments 
+const addComment = (comment,parentId = null,callback) => {
+  let responseObj;
+
   $.ajax({
     type: "POST",
     url: "storeComments.php",
     data: {
-      comment: inputbox.innerText,
+      comment: comment,
       parentId: parentId,
     },
     dataType: "json",
     success: function (response) {
-      console.log("succeeess");
       if (response[0] === "1") {
-        console.log("success");
-        commentDiv.id = response[2];
+        callback({
+          status:"success",
+          commentId:response[2],
+        })
+      
+        
       } else {
-        console.log("fail");
-        console.log(commentDiv);
-        parentDiv.removeChild(commentDiv);
+        callback({
+          status:'fail',
+
+        })
+       
       }
-      inputbox.innerText = "";
     },
     error: function (xhr, status, erroro) {
-      console.log("ererooo");
-      parentDiv.removeChild(commentDiv);
+      callback({
+        status:'error',
+        error:erroro
+      })
+      
     },
   });
+
 };
+
+//populate single comment in ui
+const populateComment = (comment, parentElement, type = "comment") => {
+  const commentWrapper = document.createElement("div");
+  commentWrapper.id = comment.id;
+  commentWrapper.classList.add("comment-wrapper");
+
+  const commentElement = document.createElement("div");
+
+  if (type == "comment") {
+    commentElement.classList.add("comment");
+  } else {
+    commentElement.classList.add("reply", "comment");
+  }
+
+  commentElement.innerHTML = `
+     <div class="user-banner">
+         <div class="user">
+             <div class="avatar" style="background-color:#fff5e9;border-color:#ffe0bd; color:#F98600">
+             <img src="${comment.picture}"
+             alt="">
+                 <span class="stat green"></span>
+             </div>
+             <h5>${comment.name}</h5>
+         </div>
+         <button class="btn dropdown"><i class="ri-more-line"></i></button>
+     </div>
+     <div class="content">
+         <p>${comment.comment}
+         </p>
+     </div>
+     <div class="footer">
+         <button class="btn"><i class="ri-emotion-line"></i></button>
+         <div class="divider"></div>
+         ${
+           type != "reply"
+             ? '<a href="#" class="reply-link">Reply</a><div class="divider"></div>'
+             : ""
+         }
+         
+         
+         <span class="is-mute">2 min</span>
+     </div>
+`;
+  commentWrapper.appendChild(commentElement);
+  if (comment.reply.length > 0) {
+    populateArrayComments(comment.reply, commentWrapper, "reply");
+  }
+  if(type=='comment'){
+parentElement.insertBefore(commentWrapper,parentElement.firstChild)
+  }else{
+      parentElement.appendChild(commentWrapper);
+
+  }
+  return commentWrapper;
+};
+
+// populate array comments
+const populateArrayComments = (comments, parentElement, type = "comment") => {
+  comments.forEach((comment) => {
+    populateComment(comment, parentElement, type);
+  });
+};
+
+// store To  Local storage
+const storeCommentToLocal = (comment,parentId)=>{
+let commentObj ={
+  comment:comment,
+  parentId:parentId
+}
+let commentString = JSON.stringify(commentObj);
+localStorage.setItem('pendingComment',commentString);
+}

@@ -110,13 +110,13 @@ session_start();
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="script.js"></script>
     <script>
-         let isLoggedIn = <?php echo (isset($_SESSION['email'])) ? 'true' : 'false'; ?>;
-            let name = '<?php echo isset($_SESSION['name']) ? $_SESSION['name'] : ''; ?>';
-            let picture = '<?php echo isset($_SESSION['picture']) ? $_SESSION['picture'] : '' ?>';
-           const user = new User(name,picture);
+        const isLoggedIn = <?php echo (isset($_SESSION['email'])) ? 'true' : 'false'; ?>;
+        const name = '<?php echo isset($_SESSION['name']) ? $_SESSION['name'] : ''; ?>';
+        const picture = '<?php echo isset($_SESSION['picture']) ? $_SESSION['picture'] : '' ?>';
+        const user = new User(name, picture);
         document.addEventListener('DOMContentLoaded', () => {
 
-           
+
 
 
 
@@ -124,22 +124,30 @@ session_start();
             let inputbox = document.getElementById('messagebox');
 
             sendbutton.addEventListener('click', () => {
-                if (isLoggedIn) {
-                    console.log("loggedIn");
-                    if (inputbox.innerText == "") {
-                        alert("empty");
-                    } else {
-                        let comment =user.commentObject(inputbox.innerText);
+                if (inputbox.innerText == "") {
+                } else {
+                    if (isLoggedIn) {
+
+                        let comment = user.commentObject(inputbox.innerText);
                         let allcommentDiv = document.querySelector(".all-comments");
 
                         let commentDiv = populateComment(comment, allcommentDiv, 'comment');
                         // console.log(commentDiv);
-                        addComment(inputbox, commentDiv, allcommentDiv);
+                        let response = addComment(inputbox.innerText);
+                        if (response.status == 'success') {
+                            commentDiv.id = response.commentId;
+                            inputbox.innerText = '';
+                        } else {
+                            allcommentDiv.removeChild(commentDiv);
+                        }
 
+                    } else {
+                        storeCommentToLocal(inputbox.innerText, null);
+                        window.location.href = 'login.php';
                     }
-                } else {
-                    window.location.href = 'login.php';
+
                 }
+
             })
             // logout 
             const logoutBtn = document.getElementById('logout-btn');
