@@ -133,13 +133,15 @@ session_start();
 
                         let commentDiv = populateComment(comment, allcommentDiv, 'comment');
                         // console.log(commentDiv);
-                        let response = addComment(inputbox.innerText);
-                        if (response.status == 'success') {
+                        let response = addComment(inputbox.innerText,null,function  (response) {
+                            if (response.status == 'success') {
                             commentDiv.id = response.commentId;
                             inputbox.innerText = '';
                         } else {
                             allcommentDiv.removeChild(commentDiv);
                         }
+                        });
+                        
 
                     } else {
                         storeCommentToLocal(inputbox.innerText, null);
